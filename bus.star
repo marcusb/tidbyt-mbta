@@ -11,7 +11,6 @@ URL = "https://api-v3.mbta.com/predictions"
 
 def main(config):
     timezone = config.get("timezone") or "America/New_York"
-    route = config.get("route") or DEFAULT_ROUTE
     stop = config.get("stop") or DEFAULT_STOP
 
     params = {
@@ -23,11 +22,12 @@ def main(config):
     if rep.status_code != 200:
         fail("MBTA API request failed with status {}".format(rep.status_code))
 
+    incl = rep.json()["included"]
     rows = []
     for prediction in rep.json()["data"][0:2]:
-        incl = rep.json()["included"]
-        route_attrs = find(incl, lambda o: o["type"] == "route" and o["id"] == route)["attributes"]
-        r = renderSched(route, prediction, route_attrs, timezone)
+        route = prediction["relationships"]["route"]["data"]["id"]
+        route = find(incl, lambda o: o["type"] == "route" and o["id"] == route)["attributes"]
+        r = renderSched(prediction, route, timezone)
         if r:
             rows.extend(r)
             rows.append(render.Box(height=1, width=64, color="#ccffff"))
@@ -36,13 +36,13 @@ def main(config):
         child=render.Column(children=rows, main_align="start")
     )
 
-def renderSched(route, prediction, route_attrs, timezone):
+def renderSched(prediction, route, timezone):
     tm = prediction["attributes"]["arrival_time"]
     if not tm:
         return []
     t = time.parse_time(tm).in_location(timezone)
     arr = t - time.now().in_location(timezone)
-    dest = route_attrs["direction_destinations"][int(prediction["attributes"]["direction_id"])].upper()
+    dest = route["direction_destinations"][int(prediction["attributes"]["direction_id"])].upper()
     return [render.Row(
         main_align="space_between",
         children=[
@@ -50,7 +50,7 @@ def renderSched(route, prediction, route_attrs, timezone):
                 children=[
                     render.Circle(
                         diameter=12, color="#ffc72c",
-                        child=render.Text(content=route, color="#000", font="CG-pixel-3x5-mono")
+                        child=render.Text(content=route["short_name"], color="#000", font="CG-pixel-3x5-mono")
                     )
                 ]
             ),
