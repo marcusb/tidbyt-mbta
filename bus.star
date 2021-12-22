@@ -4,7 +4,6 @@ load("render.star", "render")
 
 API_KEY = "YOUR_KEY_HERE"
 
-DEFAULT_ROUTE = "350"
 DEFAULT_STOP = "22751"
 
 URL = "https://api-v3.mbta.com/predictions"
