@@ -42,6 +42,8 @@ def renderSched(prediction, route, timezone):
         return []
     t = time.parse_time(tm).in_location(timezone)
     arr = t - time.now().in_location(timezone)
+    if arr.minutes < 0:
+        return []
     dest = route["direction_destinations"][int(prediction["attributes"]["direction_id"])].upper()
     return [render.Row(
         main_align="space_between",
@@ -69,7 +71,7 @@ def renderSched(prediction, route, timezone):
                         )
                     ),
                     render.Text(
-                        content="{} min".format(int(arr.minutes)),
+                        content="{} min".format(int(arr.minutes)) if arr.minutes else "Now",
                         height=8,
                         offset=-1,
                         font="Dina_r400-6",
