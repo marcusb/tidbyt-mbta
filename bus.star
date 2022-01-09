@@ -21,11 +21,12 @@ def main(config):
     if rep.status_code != 200:
         fail("MBTA API request failed with status {}".format(rep.status_code))
 
-    incl = rep.json()["included"]
     rows = []
-    for prediction in rep.json()["data"][0:2]:
+    predictions = [p for p in rep.json()["data"]
+                   if p["attributes"]["schedule_relationship"] != "SKIPPED"]
+    for prediction in predictions[0:2]:
         route = prediction["relationships"]["route"]["data"]["id"]
-        route = find(incl, lambda o: o["type"] == "route" and o["id"] == route)["attributes"]
+        route = find(rep.json()["included"], lambda o: o["type"] == "route" and o["id"] == route)["attributes"]
         r = renderSched(prediction, route, timezone)
         if r:
             rows.extend(r)
