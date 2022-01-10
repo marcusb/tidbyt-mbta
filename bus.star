@@ -13,7 +13,7 @@ def main(config):
     stop = config.get("stop") or DEFAULT_STOP
 
     params = {
-        "sort": "departure_time",
+        "sort": "arrival_time",
         "include": "route",
         "filter[stop]": stop
     }
@@ -50,7 +50,7 @@ def main(config):
         )
 
 def renderSched(prediction, route, timezone):
-    tm = prediction["attributes"]["departure_time"]
+    tm = prediction["attributes"]["arrival_time"]
     if not tm:
         return []
     t = time.parse_time(tm).in_location(timezone)
