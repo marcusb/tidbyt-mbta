@@ -32,9 +32,22 @@ def main(config):
             rows.extend(r)
             rows.append(render.Box(height=1, width=64, color="#ccffff"))
 
-    return render.Root(
-        child=render.Column(children=rows, main_align="start")
-    )
+    if rows:
+        return render.Root(
+            child=render.Column(children=rows, main_align="start")
+        )
+    else:
+        return render.Root(
+            child=render.Marquee(
+                width=64,
+                child=render.Text(
+                    content="No current departures",
+                    height=8,
+                    offset=-1,
+                    font="Dina_r400-6"
+                )
+            )
+        )
 
 def renderSched(prediction, route, timezone):
     tm = prediction["attributes"]["departure_time"]
