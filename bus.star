@@ -24,7 +24,7 @@ def main(config):
     rows = []
     predictions = [p for p in rep.json()["data"]
                    if p["attributes"]["schedule_relationship"] != "SKIPPED"]
-    for prediction in predictions[0:2]:
+    for prediction in predictions:
         route = prediction["relationships"]["route"]["data"]["id"]
         route = find(rep.json()["included"], lambda o: o["type"] == "route" and o["id"] == route)["attributes"]
         r = renderSched(prediction, route, timezone)
@@ -34,7 +34,7 @@ def main(config):
 
     if rows:
         return render.Root(
-            child=render.Column(children=rows, main_align="start")
+            child=render.Column(children=rows[:3], main_align="start")
         )
     else:
         return render.Root(
